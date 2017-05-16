@@ -6,6 +6,8 @@ import AUDIO from '../audio';
 
 import Albums from '../components/Albums.js';
 import Album from '../components/Album';
+import Artists from '../components/Artists';
+import Artist from '../components/Artist';
 import Sidebar from '../components/Sidebar';
 import Player from '../components/Player';
 
@@ -29,7 +31,9 @@ export default class AppContainer extends Component {
     axios.get('/api/albums/')
       .then(res => res.data)
       .then(album => this.onLoad(convertAlbums(album)));
-
+    // axios.get('/api/artists')
+    //   .then(res => res.data)
+    //   .then(artist => this.onLoad(convertAlbums(artist)));
     AUDIO.addEventListener('ended', () =>
       this.next());
     AUDIO.addEventListener('timeupdate', () =>
@@ -110,15 +114,15 @@ export default class AppContainer extends Component {
         </div>
         <div className="col-xs-10">
         {
-          this.props.children ? 
-            React.cloneElement(this.props.children, { 
+          this.props.children ?
+            React.cloneElement(this.props.children, {
               album: this.state.selectedAlbum,
               currentSong: this.state.currentSong,
               isPlaying: this.state.isPlaying,
               toggleOne: this.toggleOne,
               albums: this.state.albums,
               selectAlbum: this.selectAlbum
-            }) 
+            })
             : null
         }
         </div>
