@@ -30,20 +30,27 @@ export default class AppContainer extends Component {
   componentDidMount () {
     axios.get('/api/albums/')
       .then(res => res.data)
-      .then(album => this.onLoad(convertAlbums(album)));
-    // axios.get('/api/artists')
-    //   .then(res => res.data)
-    //   .then(artist => this.onLoad(convertAlbums(artist)));
+      .then(album => this.onLoad(convertAlbums(album, null)));
+    axios.get('/api/artists/')
+      .then(res => res.data)
+      .then(artists => this.onLoad(null, artists));
     AUDIO.addEventListener('ended', () =>
       this.next());
     AUDIO.addEventListener('timeupdate', () =>
       this.setProgress(AUDIO.currentTime / AUDIO.duration));
   }
 
-  onLoad (albums) {
-    this.setState({
-      albums: albums
-    });
+  onLoad (albums, artists) {
+    if(albums) {
+      this.setState({
+        albums: albums
+      });
+    }
+    if(artists){
+      this.setState({
+        artists: artists
+      });
+    }
   }
 
   play () {
@@ -102,6 +109,15 @@ export default class AppContainer extends Component {
       }));
   }
 
+  selectArtist (artistId) {
+    axios.get(`/api/artists/${artistId}`)
+      .then(res => res.data)
+      .then(artist => this.setState({
+        selectedArtist: artist
+      }))
+      .then(() => consloe.log(this.state.selectedArtist));
+  }
+
   deselectAlbum () {
     this.setState({ selectedAlbum: {}});
   }
@@ -121,7 +137,9 @@ export default class AppContainer extends Component {
               isPlaying: this.state.isPlaying,
               toggleOne: this.toggleOne,
               albums: this.state.albums,
-              selectAlbum: this.selectAlbum
+              selectAlbum: this.selectAlbum,
+              selectArtist: this.selectArtist,
+              artists: this.state.artists
             })
             : null
         }
