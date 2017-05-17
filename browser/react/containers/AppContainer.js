@@ -25,6 +25,8 @@ export default class AppContainer extends Component {
     this.prev = this.prev.bind(this);
     this.selectAlbum = this.selectAlbum.bind(this);
     this.deselectAlbum = this.deselectAlbum.bind(this);
+    this.selectArtist = this.selectArtist.bind(this);
+    this.deselectArtist = this.deselectArtist.bind(this);
   }
 
   componentDidMount () {
@@ -104,22 +106,65 @@ export default class AppContainer extends Component {
   selectAlbum (albumId) {
     axios.get(`/api/albums/${albumId}`)
       .then(res => res.data)
-      .then(album => this.setState({
-        selectedAlbum: convertAlbum(album)
-      }));
+      .then(album =>{
+        return (
+
+          this.setState({
+            selectedAlbum: convertAlbum(album)
+          })
+        )
+      });
   }
 
   selectArtist (artistId) {
-    axios.get(`/api/artists/${artistId}`)
+    axios.get(`/api/artists/${artistId}/`)
       .then(res => res.data)
-      .then(artist => this.setState({
-        selectedArtist: artist
-      }))
-      .then(() => consloe.log(this.state.selectedArtist));
+      .then(artist => {
+        return(
+          this.setState({
+            selectedArtist: artist
+          })
+        )
+
+      })
+      .then(()=>{
+        return axios.get(`/api/artists/${artistId}/albums`)
+      })
+      .then(res=>res.data)
+      .then(albums=>{
+          // console.log(albums);
+          this.state.selectedArtist.albums=albums
+          return this.state.selectedArtist.albums
+      })
+      .then(()=>{
+        return axios.get(`/api/artists/${artistId}/songs`)
+      })
+      .then(res=>res.data)
+      .then(songs=>{
+          // console.log(songs);
+          this.state.selectedArtist.songs=songs
+          return this.state.selectedArtist.songs
+      })
   }
+
+  // selectedArtistAlbums(artistId){
+  //   axios.get(`/api/artists/${artistId}/albums`)
+  //     .then(res=>res.data)
+  //     .then(artist=>{
+  //       this.setState({
+  //         selectedArtist:artist
+  //       })
+  //       return
+  //     })
+  // }
+
 
   deselectAlbum () {
     this.setState({ selectedAlbum: {}});
+  }
+
+  deselectArtist () {
+    this.setState({ selectedArtist: {}});
   }
 
   render () {
@@ -133,6 +178,7 @@ export default class AppContainer extends Component {
           this.props.children ?
             React.cloneElement(this.props.children, {
               album: this.state.selectedAlbum,
+              artist: this.state.selectedArtist,
               currentSong: this.state.currentSong,
               isPlaying: this.state.isPlaying,
               toggleOne: this.toggleOne,
